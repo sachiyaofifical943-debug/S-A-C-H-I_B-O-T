@@ -89,7 +89,7 @@ async function connectToWA() {
 
       const up = `SACHI-BOT connected ✅\n\nPREFIX: ${prefix}`;
       await sachiya.sendMessage(ownerNumber[0] + "@s.whatsapp.net", {
-        image: { url: `https://github.com/DANUWA-MD/DANUWA-MD/blob/main/images/DANUWA-MD.png?raw=true` },
+        image: { url: `https://github.com/sachiyaofifical943-debug/S-A-C-H-I_B-O-T/blob/main/Images/1000020198.jpg` },
         caption: up
       });
 
@@ -179,7 +179,7 @@ async function connectToWA() {
 ensureSessionFile();
 
 app.get("/", (req, res) => {
-  res.send("Hey, DANUWA-MD started✅");
+  res.send("Hey, SACHI-BOT started✅");
 });
 
 app.listen(port, () => console.log(`Server listening on http://localhost:${port}`));
