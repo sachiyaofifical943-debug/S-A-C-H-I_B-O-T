@@ -67,7 +67,7 @@ async function connectToWA() {
   const { state, saveCreds } = await useMultiFileAuthState(path.join(__dirname, '/auth_info_baileys/'));
   const { version } = await fetchLatestBaileysVersion();
 
-  const danuwa = makeWASocket({
+  const sachiya = makeWASocket({
     logger: P({ level: 'silent' }),
     printQRInTerminal: false,
     browser: Browsers.macOS("Firefox"),
@@ -78,7 +78,7 @@ async function connectToWA() {
     generateHighQualityLinkPreview: true,
   });
 
-  danuwa.ev.on('connection.update', async (update) => {
+  sachiya.ev.on('connection.update', async (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === 'close') {
       if (lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut) {
@@ -101,12 +101,12 @@ async function connectToWA() {
     }
   });
 
-  danuwa.ev.on('creds.update', saveCreds);
+  sachiya.ev.on('creds.update', saveCreds);
 
-  danuwa.ev.on('messages.upsert', async ({ messages }) => {
+  sachiya.ev.on('messages.upsert', async ({ messages }) => {
     for (const msg of messages) {
       if (msg.messageStubType === 68) {
-        await danuwa.sendMessageAck(msg.key);
+        await sachiya.sendMessageAck(msg.key);
       }
     }
 
@@ -125,30 +125,30 @@ async function connectToWA() {
     const args = body.trim().split(/ +/).slice(1);
     const q = args.join(' ');
 
-    const sender = mek.key.fromMe ? danuwa.user.id : (mek.key.participant || mek.key.remoteJid);
+    const sender = mek.key.fromMe ? sachiya.user.id : (mek.key.participant || mek.key.remoteJid);
     const senderNumber = sender.split('@')[0];
     const isGroup = from.endsWith('@g.us');
-    const botNumber = danuwa.user.id.split(':')[0];
+    const botNumber = sachiya.user.id.split(':')[0];
     const pushname = mek.pushName || 'Sin Nombre';
     const isMe = botNumber.includes(senderNumber);
     const isOwner = ownerNumber.includes(senderNumber) || isMe;
-    const botNumber2 = await jidNormalizedUser(danuwa.user.id);
+    const botNumber2 = await jidNormalizedUser(sachiya.user.id);
 
-    const groupMetadata = isGroup ? await danuwa.groupMetadata(from).catch(() => {}) : '';
+    const groupMetadata = isGroup ? await sachiya.groupMetadata(from).catch(() => {}) : '';
     const groupName = isGroup ? groupMetadata.subject : '';
     const participants = isGroup ? groupMetadata.participants : '';
     const groupAdmins = isGroup ? await getGroupAdmins(participants) : '';
     const isBotAdmins = isGroup ? groupAdmins.includes(botNumber2) : false;
     const isAdmins = isGroup ? groupAdmins.includes(sender) : false;
 
-    const reply = (text) => danuwa.sendMessage(from, { text }, { quoted: mek });
+    const reply = (text) => sachiya.sendMessage(from, { text }, { quoted: mek });
 
     if (isCmd) {
       const cmd = commands.find((c) => c.pattern === commandName || (c.alias && c.alias.includes(commandName)));
       if (cmd) {
         if (cmd.react) danuwa.sendMessage(from, { react: { text: cmd.react, key: mek.key } });
         try {
-          cmd.function(danuwa, mek, m, {
+          cmd.function(sachiya, mek, m, {
             from, quoted: mek, body, isCmd, command: commandName, args, q,
             isGroup, sender, senderNumber, botNumber2, botNumber, pushname,
             isMe, isOwner, groupMetadata, groupName, participants, groupAdmins,
@@ -164,7 +164,7 @@ async function connectToWA() {
     for (const handler of replyHandlers) {
       if (handler.filter(replyText, { sender, message: mek })) {
         try {
-          await handler.function(danuwa, mek, m, {
+          await handler.function(sachiya, mek, m, {
             from, quoted: mek, body: replyText, sender, reply,
           });
           break;
